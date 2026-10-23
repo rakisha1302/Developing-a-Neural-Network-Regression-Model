@@ -49,70 +49,125 @@ Use the trained model to predict  for a new input value .
 ### Register Number:
 
 ```python
+from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import seaborn as sns
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-df=pd.read_csv("C:\\Users\\varal\\Downloads\\Deep Learning\\Deep Learning\\Exp-1.csv")
+df=pd.read_csv(r"C:\Users\acer\Downloads\Exp-1.csv")
 df
 x=df[["Input"]].values
 y=df[["Output"]].values
-xt,xst,yt,yst=train_test_split(x,y,test_size=0.33,random_state=33)
-scaler1=MinMaxScaler()
-scaler2=MinMaxScaler()
-xt=scaler1.fit_transform(xt)
-xst=scaler2.fit_transform(xst)
-xt1=torch.FloatTensor(xt)
-xst1=torch.FloatTensor(xst)
-yt1=torch.FloatTensor(yt)
-yst1=torch.FloatTensor(yst)
-class neuralnet(nn.Module):
+xt,xst,yt,yst=train_test_split(x,y,test_size=0.2,random_state=52) # check if requires_grad is true, false if not directly specified
+scale1=MinMaxScaler()
+scale2=MinMaxScaler()
+xt=scale1.fit_transform(xt)
+xst=scale1.transform(xst)
+
+xt=torch.FloatTensor(xt)
+xst=torch.FloatTensor(xst)
+yt=torch.FloatTensor(yt)
+yst=torch.FloatTensor(yst)
+class neuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
-        self.network=nn.Sequential(
-          nn.Linear(1,20),
-          nn.ReLU(),
-          nn.Linear(20,10),
-          nn.ReLU(),
-          nn.Linear(10,1)
+        self.network = nn.Sequential(
+            nn.Linear(1, 16),
+            nn.ReLU(),
+            nn.Linear(16, 8),
+            nn.ReLU(),
+            nn.Linear(8, 1)
+
+
         )
-    def forward(self,x):
+    def forward(self, x):
         return self.network(x)
-model=neuralnet()
+
+model=neuralNetwork()
 criterion=nn.MSELoss()
-optimizer=optim.Adam(model.parameters(),lr=0.001)
-epochs=1000
+optimizer=torch.optim.Adam(model.parameters(),lr=0.01)
+
+epochs=5000
+losses=[]
+
 for i in range(epochs):
     optimizer.zero_grad()
-    pred=model(xt1)
-    loss=criterion(pred,yt1)
+    predictions=model(xt)
+    loss=criterion(predictions,yt)
     loss.backward()
     optimizer.step()
     if i%100==0:
-        print(f"Epochs:{i} Loss:",loss.item())
+        print(f"epoch: {i}, loss: {loss.item()}")
+        losses.append(loss.item())
+# %% prediction
+new_data=torch.FloatTensor([[16]])
+new_data=torch.Tensor(scale1.transform(new_data))
+predictions=model(new_data)
+print(predictions.item())
+# %% test
+xst = torch.FloatTensor(xst)
+yst = torch.FloatTensor(yst)
 with torch.no_grad():
-    pred=model(xst1)
-    loss=criterion(pred,yst1)
-    print(loss.item())
-input=torch.FloatTensor(scaler1.transform([[18]]))
-pred=model(input)
-print(pred.item())
+    predictions_l=model(xst)
+    test_loss=criterion(predictions_l,yst)
+    print(f"test loss: {test_loss.item()}")
+
+plt.plot(losses)
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Loss during training")
+plt.show()
 
 ```
 
 ### Dataset Information
 
+<img width="630" height="652" alt="image" src="https://github.com/user-attachments/assets/804e90c5-31eb-42dc-bd43-a568da48d166" />
 
 ### OUTPUT
+epoch: 0, loss: 384.66552734375
+epoch: 100, loss: 19.288549423217773
+epoch: 200, loss: 0.029834769666194916
+epoch: 300, loss: 0.0003900120500475168
+epoch: 400, loss: 0.0002341920044273138
+epoch: 500, loss: 0.00012931256787851453
+epoch: 600, loss: 6.571226549567655e-05
+epoch: 700, loss: 3.076138091273606e-05
+epoch: 800, loss: 1.3258664694149047e-05
+epoch: 900, loss: 5.256992153590545e-06
+epoch: 1000, loss: 1.9140977656206815e-06
+epoch: 1100, loss: 6.384268544934457e-07
+epoch: 1200, loss: 1.9446815713308752e-07
+epoch: 1300, loss: 5.37447952808634e-08
+epoch: 1400, loss: 1.3598348225229984e-08
+epoch: 1500, loss: 3.167864859321412e-09
+epoch: 1600, loss: 6.839447341810967e-10
+epoch: 1700, loss: 1.3765581730051935e-10
+epoch: 1800, loss: 3.0775975518038123e-11
+epoch: 1900, loss: 7.579122225653823e-12
+epoch: 2000, loss: 2.9416469260468148e-12
+epoch: 2100, loss: 1.1226575225009583e-12
+epoch: 2200, loss: 1.9184653865522705e-12
+epoch: 2300, loss: 1.0042336970675358e-12
+epoch: 2400, loss: 9.142316894847347e-13
+...
+epoch: 4800, loss: 8.194926399800184e-13
+epoch: 4900, loss: 8.194926399800184e-13
+31.999998092651367
+test loss: 3.78956116703702e-13
 
 ### Training Loss Vs Iteration Plot
 
 
+<img width="572" height="454" alt="image" src="https://github.com/user-attachments/assets/543149e6-7cfd-4b12-8d57-7a519ae86ab1" />
+
+
 ### New Sample Data Prediction
-Include your sample input and output here
+
 
 ## RESULT
 Thus, a neural network regression model was successfully developed and trained using PyTorch.
