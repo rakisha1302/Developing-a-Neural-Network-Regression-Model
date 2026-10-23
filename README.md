@@ -49,29 +49,67 @@ Use the trained model to predict  for a new input value .
 ### Register Number:
 
 ```python
-class NeuralNet(nn.Module):
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+import pandas as pd
+import matplotlib.pyplot as plt
+df=pd.read_csv("C:\\Users\\varal\\Downloads\\Deep Learning\\Deep Learning\\Exp-1.csv")
+df
+x=df[["Input"]].values
+y=df[["Output"]].values
+xt,xst,yt,yst=train_test_split(x,y,test_size=0.33,random_state=33)
+scaler1=MinMaxScaler()
+scaler2=MinMaxScaler()
+xt=scaler1.fit_transform(xt)
+xst=scaler2.fit_transform(xst)
+xt1=torch.FloatTensor(xt)
+xst1=torch.FloatTensor(xst)
+yt1=torch.FloatTensor(yt)
+yst1=torch.FloatTensor(yst)
+class neuralnet(nn.Module):
     def __init__(self):
         super().__init__()
-        #Include your code here
-
-
-
-# Initialize the Model, Loss Function, and Optimizer
-
-
-
-def train_model(ai_brain, X_train, y_train, criterion, optimizer, epochs=2000):
-    #Include your code here
+        self.network=nn.Sequential(
+          nn.Linear(1,20),
+          nn.ReLU(),
+          nn.Linear(20,10),
+          nn.ReLU(),
+          nn.Linear(10,1)
+        )
+    def forward(self,x):
+        return self.network(x)
+model=neuralnet()
+criterion=nn.MSELoss()
+optimizer=optim.Adam(model.parameters(),lr=0.001)
+epochs=1000
+for i in range(epochs):
+    optimizer.zero_grad()
+    pred=model(xt1)
+    loss=criterion(pred,yt1)
+    loss.backward()
+    optimizer.step()
+    if i%100==0:
+        print(f"Epochs:{i} Loss:",loss.item())
+with torch.no_grad():
+    pred=model(xst1)
+    loss=criterion(pred,yst1)
+    print(loss.item())
+input=torch.FloatTensor(scaler1.transform([[18]]))
+pred=model(input)
+print(pred.item())
 
 ```
 
 ### Dataset Information
-Include screenshot of the generated data
+
 
 ### OUTPUT
 
 ### Training Loss Vs Iteration Plot
-Include your plot here
+
 
 ### New Sample Data Prediction
 Include your sample input and output here
