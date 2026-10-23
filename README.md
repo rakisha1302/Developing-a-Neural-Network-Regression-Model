@@ -44,9 +44,9 @@ Use the trained model to predict  for a new input value .
 
 ## PROGRAM
 
-### Name:
+### Name: RAKISHA R
 
-### Register Number:
+### Register Number: 212225230223
 
 ```python
 from sklearn.model_selection import train_test_split
@@ -167,6 +167,10 @@ test loss: 3.78956116703702e-13
 
 
 ### New Sample Data Prediction
+
+
+
+<img width="447" height="96" alt="image" src="https://github.com/user-attachments/assets/46fcf2d9-2466-47ed-b875-a808e6ebbc52" />
 
 
 ## RESULT
